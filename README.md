@@ -63,4 +63,4 @@ python3 picklu.py
 
 deactivate
 
-👨‍💻 Developed 💚 by LNT
+👨‍💻 Developed 💛 by LNT
