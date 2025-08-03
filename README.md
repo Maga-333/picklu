@@ -38,8 +38,8 @@ lsblk
 
 ## 6. Mount the USB (if not auto-mounted)
 
-sudo mkdir -p /mnt/usb
-sudo mount /dev/sdX1 /mnt/usb
+sudo mkdir -p /media/card
+sudo mount /dev/sdb1 /media/card
 
     ⚠️ Replace sdX1 with your actual USB name.
 
