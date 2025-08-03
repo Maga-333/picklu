@@ -1,4 +1,4 @@
-Picklu - USB Forensics & Error File Scanner 
+🧠 Picklu - USB Forensics & Error File Scanner 
 
 © 2025 superstar. All Rights Reserved.
 
