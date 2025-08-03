@@ -1,22 +1,20 @@
-🧠 Picklu – USB Forensics & Error File Scanner
+# 🧠 Picklu - USB Forensics & Error File Scanner
 
 Picklu is a smart Python-based USB security tool that:
 
-    🔌 Detects and scans mounted USB drives
+- 🔌 Detects and scans mounted USB drives  
+- 🛡️ Identifies files containing hacker code or suspicious patterns  
+- 🧹 Automatically removes error or malicious files  
+- 📁 Categorizes files into Safe ✅ and Dangerous ❌  
+- 🧾 Logs all activity with clear timestamps  
+- 💻 Lightweight, portable, and fast  
 
-    🛡️ Identifies files containing hacker code or suspicious patterns
+---
 
-    🧹 Automatically removes error or malicious files
+# 🔧 How to Install
 
-    📁 Categorizes files into Safe ✅ and Dangerous ❌
-
-    🧾 Logs all activity with clear timestamps
-
-    💻 Lightweight, portable, and fast
-
-🔧 How to Install
-1. Clone the repository
-
+## 1. Clone the repository
+```bash
 git clone https://github.com/Maga-333/Picklu.git
 
 2. Navigate into the project directory
