@@ -29,14 +29,18 @@ python3 -m venv .venv
 
 source .venv/bin/activate
 
+## 5. Install all required libraries
+
+pip install -r requirements.txt
+
 # 🧪 How to Use Picklu
-## 5. Insert the USB drive and identify it
+## 6. Insert the USB drive and identify it
 
 lsblk
 
     Look for the USB device, such as /dev/sdb1
 
-## 6. Mount the USB (if not auto-mounted)
+## 7. Mount the USB (if not auto-mounted)
 
 sudo mkdir -p /media/card
 
@@ -44,7 +48,7 @@ sudo mount /dev/sdb1 /media/card
 
     ⚠️ Replace sdX1 with your actual USB name.
 
-## 7. Run the Picklu scanner
+## 8. Run the Picklu scanner
 
 python3 picklu.py
 
@@ -56,7 +60,7 @@ python3 picklu.py
 
         Save logs to the logs/ folder
 
-## 8. To deactivate the virtual environment
+## 9. To deactivate the virtual environment
 
 deactivate
 
