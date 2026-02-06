@@ -1,88 +1,371 @@
 import os
-import time
 import hashlib
-from colorama import Fore, Style, init
-from pyfiglet import Figlet
-from colorama import Fore, Style, init
 import shutil
 
-def print_banner():
-    f = Figlet(font='slant')  # Same as TrackTrack
-    banner = f.renderText("Picklu")  # Banner text
-
-    # Get terminal width
-    cols = shutil.get_terminal_size().columns
-
-    # Line-by-line coloring 
-    colors = [Fore.CYAN, Fore.MAGENTA, Fore.YELLOW, Fore.GREEN, Fore.BLUE, Fore.RED]
-    lines = banner.split('\n')
-
-    for i, line in enumerate(lines):
-        color = colors[i % len(colors)]
-        print(color + line)  # Centered output
-
-    # Subtitle – left aligned
-    print(Fore.LIGHTWHITE_EX + Style.BRIGHT + "Tool: USB Forensics Tool\n")
+from colorama import Fore, Style, init
+from pyfiglet import Figlet
 
 init(autoreset=True)
 
-def list_usb_mounts():
-    print(Fore.CYAN + "\n🔍 Scanning for USB drives...")
-    usb_drives = []
-    with open('/proc/mounts', 'r') as f:
-        for line in f:
-            if '/media/' in line or '/run/media/' in line or '/mnt/' in line:
-                parts = line.split()
-                usb_drives.append(parts[1])
-    return list(set(usb_drives))
 
-def hash_file(filepath):
-    hasher = hashlib.sha256()
-    try:
-        with open(filepath, 'rb') as afile:
-            buf = afile.read()
-            hasher.update(buf)
-        return hasher.hexdigest()
-    except:
-        return "Permission Denied"
+# ================= BANNER ================= #
 
-def scan_files(path):
-    print(Fore.GREEN + f"\n📂 Scanning Files in: {path}")
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            # Filter: only error-related files
-            if file.lower().endswith(error_extensions) or 'error' in file.lower():
-                full_path = os.path.join(root, file)
-                try:
-                    size = os.path.getsize(full_path)
-                    created = time.ctime(os.path.getctime(full_path))
-                    modified = time.ctime(os.path.getmtime(full_path))
-                    hashval = hash_file(full_path)
+def print_banner():
 
-                    print(Fore.YELLOW + f"\n📝 File: {file}")
-                    print(Fore.BLUE + f"   📍 Path: {full_path}")
-                    print(Fore.MAGENTA + f"   📏 Size: {size} bytes")
-                    print(Fore.CYAN + f"   🕓 Created: {created}")
-                    print(Fore.CYAN + f"   🔧 Modified: {modified}")
-                    print(Fore.RED + f"   🧪 SHA256: {hashval}")
-                except:
-                    print(Fore.RED + f"\n❌ Cannot access: {full_path}")
+    f = Figlet(font="slant")
+    banner = f.renderText("Picklu")
 
-error_extensions = (
-    '.log', '.err', '.error', '.trace', '.crash', '.dmp', '.core', '.stacktrace',
-    '.out', '.fail', '.stderr', '.stdout', '.bak', '.tmp', '.mdmp', '.hdmp', '.rpt',
-    '.dump', '.trc', '.panic', '.fatal', '.debug', '.ftrace', '.record', '.diag',
-    '.old', '.prev', '.report', '.bug', '.exception', '.syslog', '.journal',
-    '.txt', '.cfg', '.ini', '.conf', '.sav', '.state', '.issue', '.sym', '.symbol',
-    '.backtrace', '.traceback', '.logfile', '.minidump', '.oom', '.coredump', 
-    '.failures', '.recovery', '.repair'
+    colors = [
+        Fore.CYAN, Fore.MAGENTA,
+        Fore.YELLOW, Fore.GREEN,
+        Fore.BLUE, Fore.RED
+    ]
+
+    for i, line in enumerate(banner.split("\n")):
+        print(colors[i % len(colors)] + line)
+
+    print(Fore.WHITE + Style.BRIGHT +
+          "Offline USB Malware & Forensics Scanner\n")
+
+
+
+# ================= SAFE EXTENSIONS ================= #
+
+SAFE_EXTENSIONS = (
+    ".pdf", ".ppt", ".pptx", ".doc", ".docx",
+    ".xls", ".xlsx", ".txt", ".csv",
+    ".mp4", ".mp3", ".jpg", ".png", ".jpeg"
 )
 
+
+
+# ================= DANGER EXTENSIONS ================= #
+
+DANGER_EXTENSIONS = (
+
+    # Executables
+    '.exe','.msi','.bat','.cmd','.com','.scr','.pif',
+    '.jar','.apk','.app','.bin','.run',
+
+    # Scripts
+    '.ps1','.vbs','.js','.jse','.wsf','.wsh',
+    '.sh','.bash','.zsh','.ksh',
+    '.py','.php','.pl','.rb','.lua',
+
+    # System / DLL
+    '.dll','.sys','.drv','.ocx','.so','.dylib',
+
+    # Office Macros
+    '.docm','.xlsm','.pptm','.dotm',
+
+    # Archives
+    '.zip','.rar','.7z','.tar','.gz','.bz2',
+    '.xz','.iso','.img','.dmg',
+
+    # Web
+    '.html','.htm','.xml','.svg','.swf',
+    '.jsp','.asp','.aspx',
+
+    # Shortcuts
+    '.lnk','.url','.desktop',
+
+    # Others
+    '.torrent','.crx','.xpi','.deb','.rpm'
+)
+
+
+
+# ================= LOAD DATABASE ================= #
+
+def load_keywords():
+
+    keys = []
+
+    try:
+        with open("malware_keywords.txt") as f:
+            for line in f:
+                keys.append(line.strip().lower())
+
+    except:
+        print(Fore.RED + "⚠️ malware_keywords.txt missing")
+
+    return keys
+
+
+
+def load_hashes():
+
+    db = {}
+
+    try:
+        with open("malware_hashes.txt") as f:
+
+            for line in f:
+                h, name = line.strip().split("|")
+                db[h] = name
+
+    except:
+        print(Fore.RED + "⚠️ malware_hashes.txt missing")
+
+    return db
+
+
+
+MALWARE_KEYWORDS = load_keywords()
+KNOWN_HASHES = load_hashes()
+
+
+
+# ================= USB DETECT ================= #
+
+def list_usb_mounts():
+
+    print(Fore.CYAN + "🔍 Searching USB Drives...")
+
+    drives = []
+
+    with open("/proc/mounts") as f:
+
+        for line in f:
+            if "/media/" in line or "/mnt/" in line:
+                drives.append(line.split()[1])
+
+    return list(set(drives))
+
+
+
+# ================= HASH ================= #
+
+def get_hash(path):
+
+    h = hashlib.sha256()
+
+    try:
+        with open(path,"rb") as f:
+            h.update(f.read())
+
+        return h.hexdigest()
+
+    except:
+        return None
+
+
+
+# ================= FILE READ ================= #
+
+def read_file(path):
+
+    try:
+        with open(path,"r",errors="ignore") as f:
+            return f.read().lower()
+
+    except:
+        return ""
+
+
+
+# ================= CHECKS ================= #
+
+def keyword_scan(content):
+
+    found = []
+
+    for k in MALWARE_KEYWORDS:
+        if k in content:
+            found.append(k)
+
+    return found
+
+
+
+def hash_check(hashval):
+
+    if hashval in KNOWN_HASHES:
+        return KNOWN_HASHES[hashval]
+
+    return None
+
+
+
+def extension_check(name):
+
+    name = name.lower()
+
+    # Safe files → skip
+    if name.endswith(SAFE_EXTENSIONS):
+        return "SAFE"
+
+    # Dangerous
+    for ext in DANGER_EXTENSIONS:
+        if name.endswith(ext):
+            return "DANGER"
+
+    return "UNKNOWN"
+
+
+
+def heuristic_check(path):
+
+    suspicious = []
+
+    try:
+
+        size = os.path.getsize(path)
+
+        if size > 100 * 1024 * 1024:
+            suspicious.append("Huge File")
+
+        if os.access(path, os.X_OK):
+            suspicious.append("Executable")
+
+        if path.lower().endswith((".js",".vbs",".ps1",".sh")):
+            suspicious.append("Script")
+
+    except:
+        pass
+
+    return suspicious
+
+
+
+# ================= DELETE ================= #
+
+def ask_delete(path):
+
+    while True:
+
+        print(Fore.RED + "\n⚠️ MALWARE DETECTED")
+
+        choice = input(
+            Fore.YELLOW +
+            "Delete file? (yes/no/exit): "
+        ).strip().lower()
+
+
+        if choice == "yes":
+
+            try:
+                os.remove(path)
+                print(Fore.GREEN + "✅ Deleted")
+            except:
+                print(Fore.RED + "❌ Delete Failed")
+
+            break
+
+
+        elif choice == "no":
+
+            print(Fore.YELLOW + "⚠️ Skipped")
+            break
+
+
+        elif choice == "exit":
+
+            print(Fore.MAGENTA + "🛑 Scan Stopped")
+            exit()
+
+
+        else:
+
+            print(Fore.CYAN + "❗ Type: yes / no / exit")
+
+
+
+# ================= SCANNER ================= #
+
+def scan_usb(path):
+
+    print(Fore.GREEN + f"\n📂 Scanning: {path}")
+
+    for root,dirs,files in os.walk(path):
+
+        for file in files:
+
+            full = os.path.join(root,file)
+
+            try:
+
+                print(Fore.BLUE + "\n---------------------------")
+                print(Fore.YELLOW + "📄", file)
+
+                hashv = get_hash(full)
+
+                print(Fore.CYAN + "🔐 SHA256:", hashv)
+
+
+                content = read_file(full)
+
+                keys = keyword_scan(content)
+
+                sig = hash_check(hashv)
+
+                ext_status = extension_check(file)
+
+                heur = heuristic_check(full)
+
+
+                threat = False
+
+
+                # ===== RESULTS ===== #
+
+                if ext_status == "SAFE":
+                    print(Fore.GREEN + "✅ Trusted File (Skipped)")
+                    continue
+
+
+                if ext_status == "DANGER":
+                    print(Fore.RED + "🚨 Dangerous Extension")
+                    threat = True
+
+
+                if keys:
+                    print(Fore.RED + "🚨 Keywords:", keys[:10])
+                    threat = True
+
+
+                if sig:
+                    print(Fore.RED + "🚨 Signature:", sig)
+                    threat = True
+
+
+                if heur:
+                    print(Fore.YELLOW + "⚠️ Behavior:", heur)
+
+
+                if threat:
+
+                    ask_delete(full)
+
+                else:
+
+                    print(Fore.GREEN + "✅ Safe File")
+
+
+            except Exception as e:
+
+                print(Fore.RED + "❌ Error:", e)
+
+
+
+# ================= MAIN ================= #
+
 if __name__ == "__main__":
+
     print_banner()
+
     usb_list = list_usb_mounts()
+
+
     if not usb_list:
-        print(Fore.RED + "⚠️ No USB drive found. Plug one in!")
+
+        print(Fore.RED + "⚠️ No USB Found")
+
     else:
+
         for usb in usb_list:
-            scan_files(usb)
+
+            scan_usb(usb)
+
+
+        print(Fore.GREEN + "\n🎯 Scan Completed")
