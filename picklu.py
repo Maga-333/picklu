@@ -381,7 +381,7 @@ class PickluFinalUpdatedGUI:
         self.scan_results = []
         for usb in usb_list:
             threading.Thread(target=self.scan_single_usb, args=(usb,)).start()
-        self.status_label.configure(text="🎯 Scan Completed! 🏆")
+        self.status_label.configure(text="Scan Completed! 🏆")
     
     def scan_single_usb(self, usb):
         progress = scan_usb(usb, self.log, self.update_progress, self.add_to_table, self.stop_event, self.scan_progress[usb])
