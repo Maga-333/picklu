@@ -7,6 +7,10 @@ from pyfiglet import Figlet
 
 init(autoreset=True)
 
+# ================= BASE PATH ================= #
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 # ================= BANNER ================= #
 
@@ -81,8 +85,10 @@ def load_keywords():
 
     keys = []
 
+    path = os.path.join(BASE_DIR, "malware_keywords.txt")
+
     try:
-        with open("malware_keywords.txt") as f:
+        with open(path) as f:
             for line in f:
                 keys.append(line.strip().lower())
 
@@ -97,10 +103,16 @@ def load_hashes():
 
     db = {}
 
+    path = os.path.join(BASE_DIR, "malware_hashes.txt")
+
     try:
-        with open("malware_hashes.txt") as f:
+        with open(path) as f:
 
             for line in f:
+
+                if line.startswith("#") or not line.strip():
+                    continue
+
                 h, name = line.strip().split("|")
                 db[h] = name
 
@@ -191,11 +203,9 @@ def extension_check(name):
 
     name = name.lower()
 
-    # Safe files → skip
     if name.endswith(SAFE_EXTENSIONS):
         return "SAFE"
 
-    # Dangerous
     for ext in DANGER_EXTENSIONS:
         if name.endswith(ext):
             return "DANGER"
