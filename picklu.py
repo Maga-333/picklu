@@ -267,7 +267,7 @@ class PickluFinalUpdatedGUI:
         self.export_button = ctk.CTkButton(self.sidebar, text="Export Results", command=self.export_results, fg_color="blue", corner_radius=20)
         self.export_button.pack(pady=10)
         
-        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit 😘", command=root.quit, fg_color="red", hover_color="pink", corner_radius=20)
+        self.exit_button = ctk.CTkButton(self.sidebar, text="Exit", command=root.quit, fg_color="red", hover_color="pink", corner_radius=20)
         self.exit_button.pack(pady=10)
         
         # Main Frame
@@ -371,7 +371,7 @@ class PickluFinalUpdatedGUI:
             return
         self.stop_event.clear()
         self.scan_progress = {usb: 0 for usb in usb_list}  # Reset progress
-        self.log("🔍 Searching USB Drives... 🕵️‍♀️\n")
+        self.log("🔍 Searching USB Drives... \n")
         self.progress.set(0)
         self.spinner.pack(pady=5)
         self.stop_button.configure(state="normal")
