@@ -220,7 +220,7 @@ def scan_usb(path, log_callback, progress_callback, table_callback, stop_event, 
             progress_callback(scanned / total_files * 100)
     return scanned
 
-# ================= CUTE & PROFESSIONAL GUI ================= #
+# ================= PROFESSIONAL GUI ================= #
 class PickluFinalUpdatedGUI:
     def __init__(self, root):
         self.root = root
@@ -304,7 +304,7 @@ class PickluFinalUpdatedGUI:
         self.progress.pack(pady=10)
         self.progress.set(0)
         
-        self.status_label = ctk.CTkLabel(self.main_frame, text="Ready to scan! 🐶", font=self.cute_font)
+        self.status_label = ctk.CTkLabel(self.main_frame, text="Ready to scan! 🐶")
         self.status_label.pack(pady=5)
         
         # Spinner
